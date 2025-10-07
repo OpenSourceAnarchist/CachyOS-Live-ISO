@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syyu --noconfirm
-          pacman -S archiso mkinitcpio-archiso git squashfs-tools grub --needed
+          pacman -S archiso mkinitcpio-archiso git squashfs-tools grub --needed --noconfirm
 
       # Runs a set of commands using the runners shell
       - name: Clone & Build
