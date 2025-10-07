@@ -31,6 +31,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install dependencies
         run: |
+          pacman-key --init
+          pacman-key --populate archlinux
           pacman -Syyu --noconfirm
           pacman -S sudo archiso mkinitcpio-archiso git squashfs-tools grub --needed --noconfirm
           echo "ALL ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
