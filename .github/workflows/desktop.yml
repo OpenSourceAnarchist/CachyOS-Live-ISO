@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: arch-package
-          path: cachyos-archiso/out/*
+          path: cachyos-archiso/out/**
