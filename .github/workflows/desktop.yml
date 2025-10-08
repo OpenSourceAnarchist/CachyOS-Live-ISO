@@ -45,7 +45,7 @@ jobs:
         run: |
           pacman-key --populate archlinux cachyos
           pacman -Syyu --noconfirm
-          pacman -S archiso mkinitcpio-archiso git squashfs-tools grub --needed --noconfirm
+          pacman -S sudo archiso mkinitcpio-archiso git squashfs-tools grub --needed --noconfirm
           echo "ALL ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
 
       - name: Clone & Build
