@@ -1,43 +1,52 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     container:
       image: archlinux/archlinux
       options: --privileged
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Install dependencies
+      - name: CachyOS Setup
         run: |
           pacman-key --init
-          pacman -Syyu --noconfirm
-          pacman -S sudo archiso mkinitcpio-archiso git squashfs-tools grub archlinux-keyring cachyos-keyring --needed --noconfirm
-          pacman-key --populate archlinux cachyos
-          echo "ALL ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
+          pacman-key --recv-keys F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key F3B607488DB35A47
+          pacman -U --noconfirm \
+            'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-keyring-20240331-1-any.pkg.tar.zst' \
+            'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-mirrorlist-22-1-any.pkg.tar.zst' \
+            'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorlist-22-1-any.pkg.tar.zst' \
+            'https://mirror.cachyos.org/repo/x86_64/cachyos/pacman-7.0.0.r7.g1f38429-1-x86_64.pkg.tar.zst'
+          sed -i '/^\[core\]/i \
+          [cachyos-v3]\n\
+          Include = /etc/pacman.d/cachyos-v3-mirrorlist\n\
+          \n\
+          [cachyos-core-v3]\n\
+          Include = /etc/pacman.d/cachyos-v3-mirrorlist\n\
+          \n\
+          [cachyos-extra-v3]\n\
+          Include = /etc/pacman.d/cachyos-v3-mirrorlist\n\
+          \n\
+          [cachyos]\n\
+          Include = /etc/pacman.d/cachyos-mirrorlist\n\
+          ' /etc/pacman.conf
 
-      # Runs a set of commands using the runners shell
+      - name: Install dependencies
+        run: |
+          pacman-key --populate archlinux cachyos
+          pacman -Syyu --noconfirm
+          pacman -S archiso mkinitcpio-archiso git squashfs-tools grub --needed --noconfirm
+
       - name: Clone & Build
         run: |
           git clone https://github.com/cachyos/cachyos-live-iso.git cachyos-archiso
